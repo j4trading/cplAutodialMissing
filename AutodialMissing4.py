@@ -91,7 +91,8 @@ bList1PortClassRow = 6
 bList1DeviceTypeRow = 7
 bList1PNumberRow = 8
 bList1ResponseRow = 9
-bList1Comment = 10
+bList1AGType = 10
+bList1Comment = 11
 
 ADTableADGroupRow = 0
 ADTableADPhoneNumberRow = 1
@@ -150,7 +151,7 @@ def placeInBadDetailedList(badAutodialList):
             if autodialErrorTableList[j][ADTableADGroupRow] != badAutodialList[i][0]:
                 continue
             else:
-                tempList = [0,0,0,0,0,0,0,0,0,0,0]
+                tempList = [0,0,0,0,0,0,0,0,0,0,0,0]
                 badAutodialsDetailed.append(tempList)
                 badAutodialsDetailed[currentIndex][bList1AGroupRow] = autodialErrorTableList[j][ADTableADGroupRow]
                 badAutodialsDetailed[currentIndex][bList1AGroupRow] = autodialErrorTableList[j][ADTableADGroupRow]
@@ -255,16 +256,37 @@ def findAutodialsWithNoClients(badAutodialsDetailed):
                 if badAutodialsDetailed[i][bList1ClientActiveRow] == "YES":
                     noClientIsActive = 0
         if noClientIsActive == 1:
-            badAutodialsDetailed[i][bList1Comment] str(badAutodialsDetailed[i][bList1Comment]) + " bad Autodial with no clients;"
+            badAutodialsDetailed[i][bList1Comment] = str(badAutodialsDetailed[i][bList1Comment]) + " bad Autodial with no clients;"
             badAutodialsDetailedToIT.append(badAutodialsDetailed[i])
 #abc456            
 def destributeToVariousLists(badAutodialsDetailed):
+    PossiblyInhousePrinterFlag = 1
     for i in range(0,len(badAutodialsDetailed)):
         if "dummy" in badAutodialsDetailed[i][bList1PortClassRow].lower():
+            badAutodialsDetailed[i][bList1AGType] = "Dummy"
             badAutodialsDetailed[i][bList1Comment] = " bad dummy group; "
             badAutodialsDetailedToIT.append(badAutodialsDetailed[i])
-        if 
-        
+            PossiblyInhousePrinterFlag = 0
+
+        string1 = str(badAutodialsDetailed[i][bList1PortClassRow].lower())
+        matchObj = re.match(r'2,|3,|4,|7,|10,|11,|29,|30,|31,|69,|70,|71' ,string1,re.I)
+        matchObj2 = re.match(r'^2$|^3$|^4$|^7$|^10$|^11$|^29$|^30$|^31$|^69$|^70$|^71$' ,string1,re.I)
+        if matchObj or matchObj2:
+            badAutodialsDetailed[i][bList1AGType] = "Autodial"
+            badAutodialsDetailed[i][bList1Comment] = " bad Autodial group; "            
+            badAutodialsDetailedToIT.append(badAutodialsDetailed[i])
+            PossiblyInhousePrinterFlag = 0
+
+        if "t4fax" in badAutodialsDetailed[i][bList1PortClassRow].lower() or "t4faxdrl" in badAutodialsDetailed[i][bList1PortClassRow].lower():
+            badAutodialsDetailed[i][bList1AGType] = "Autofax"
+            badAutodialsDetailed[i][bList1Comment] = " bad autofax group; "
+            badAutodialsDetailedToSales.append(badAutodialsDetailed[i])        
+            PossiblyInhousePrinterFlag = 0
+
+        if PossiblyInhousePrinterFlag == 1:
+            badAutodialsDetailed[i][bList1AGType] = "Inhouse Printer"
+            badAutodialsDetailed[i][bList1Comment] = " possibly bad inhouse printer; "
+            badAutodialsDetailedToIT.append(badAutodialsDetailed[i])                    
 
 def mainProgPart():
     newAutodialFlag = 1
@@ -340,7 +362,15 @@ def sendEmail():
 
 ###listOfRows = sortTable(listOfRows)
 
-
+def testCode():
+    #bList1AGType
+    string1 = "afinds"
+    matchObj = re.match(r'^finds$|^afinds$' ,string1,re.I)
+    if matchObj:
+        print("mathces")
+    else:
+        print("nope")
+    
 
 
 ######listStuff = []  #debug
@@ -353,25 +383,27 @@ yesterday = todayDate - datetime.timedelta(days=1)
 #################THis is the main program part ########################################
 #################THis is the main program part ########################################
 #################THis is the main program part ########################################
-#readFromCSV('phone_record.csv',listOfRows)
-#removeFromTable(listOfRows)
-#storeAutodialTable()
-#mainProgPart()
-#placeInBadDetailedList(badAutodialList)
-#writeTestListToCSV(badAutodialsDetailed)
-################################################################################
-################################################################################
-################################################################################
-
+#run
 readFromCSV('phone_record.csv',listOfRows)
 removeFromTable(listOfRows)
 storeAutodialTable()
 mainProgPart()
 placeInBadDetailedList(badAutodialList)
-findAutodialsWithNoClients(badAutodialsDetailed)
+destributeToVariousLists(badAutodialsDetailed)
+writeTestListToCSV(badAutodialsDetailed)
+################################################################################
+################################################################################
+################################################################################
+
+#readFromCSV('phone_record.csv',listOfRows)
+#removeFromTable(listOfRows)
+#storeAutodialTable()
+#mainProgPart()
+#placeInBadDetailedList(badAutodialList)
+#findAutodialsWithNoClients(badAutodialsDetailed)
 
 
-writeTestListToCSV(badAutodialsDetailedToIT)
+#writeTestListToCSV(badAutodialsDetailedToIT)
 
 ######removeFromTable(listOfRows)
 ######mainProgPart()
@@ -387,6 +419,8 @@ writeTestListToCSV(badAutodialsDetailedToIT)
 ######print(len(badAutodialsDetailed))
 ######writeTestListToCSV(badAutodialList)
 #sendEmail()
+print("start of program")
+
 print("end of program")
 
         

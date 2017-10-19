@@ -11,6 +11,8 @@ import os
 
 import smtplib
 
+import re
+
 from operator import itemgetter
 
 import mysql.connector
@@ -89,7 +91,7 @@ bList1PortClassRow = 6
 bList1DeviceTypeRow = 7
 bList1PNumberRow = 8
 bList1ResponseRow = 9
-
+bList1Comment = 10
 
 ADTableADGroupRow = 0
 ADTableADPhoneNumberRow = 1
@@ -148,7 +150,7 @@ def placeInBadDetailedList(badAutodialList):
             if autodialErrorTableList[j][ADTableADGroupRow] != badAutodialList[i][0]:
                 continue
             else:
-                tempList = [0,0,0,0,0,0,0,0,0,0]
+                tempList = [0,0,0,0,0,0,0,0,0,0,0]
                 badAutodialsDetailed.append(tempList)
                 badAutodialsDetailed[currentIndex][bList1AGroupRow] = autodialErrorTableList[j][ADTableADGroupRow]
                 badAutodialsDetailed[currentIndex][bList1AGroupRow] = autodialErrorTableList[j][ADTableADGroupRow]
@@ -160,6 +162,7 @@ def placeInBadDetailedList(badAutodialList):
                 badAutodialsDetailed[currentIndex][bList1PortClassRow] = autodialErrorTableList[j][ADTablePortClassRow]
                 badAutodialsDetailed[currentIndex][bList1DeviceTypeRow] = autodialErrorTableList[j][ADTableADReportRoutineRow]
                 badAutodialsDetailed[currentIndex][bList1PNumberRow] = autodialErrorTableList[j][ADTableADPhoneNumberRow]
+                
                 currentIndex = currentIndex + 1
                 
 def writeToLog(stringHere):
@@ -252,8 +255,16 @@ def findAutodialsWithNoClients(badAutodialsDetailed):
                 if badAutodialsDetailed[i][bList1ClientActiveRow] == "YES":
                     noClientIsActive = 0
         if noClientIsActive == 1:
+            badAutodialsDetailed[i][bList1Comment] str(badAutodialsDetailed[i][bList1Comment]) + " bad Autodial with no clients;"
             badAutodialsDetailedToIT.append(badAutodialsDetailed[i])
-
+#abc456            
+def destributeToVariousLists(badAutodialsDetailed):
+    for i in range(0,len(badAutodialsDetailed)):
+        if "dummy" in badAutodialsDetailed[i][bList1PortClassRow].lower():
+            badAutodialsDetailed[i][bList1Comment] = " bad dummy group; "
+            badAutodialsDetailedToIT.append(badAutodialsDetailed[i])
+        if 
+        
 
 def mainProgPart():
     newAutodialFlag = 1

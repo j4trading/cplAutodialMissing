@@ -55,6 +55,9 @@ import mysql.connector
 # Next now: 1. figure out how to do email through Python...then organize what emails will look like
 # findAutodialsWithNoClients(badAutodialsDetailed).....this added today  10/17/2017  works fine
 
+# new changes in AutodialMissing4.py as of 10/19/17:
+# 10/19/2017  I added distributeToVariousLists which creates slaes list and IT only list.  SEems to work fine...except that I only tested autofax and autodial...test list didn't have enough data to test he others
+#             everyting else seems to work fine.
 
 #index variable for overall list of lists
 mainListAutodialRow = 0   
@@ -260,7 +263,11 @@ def findAutodialsWithNoClients(badAutodialsDetailed):
             badAutodialsDetailedToIT.append(badAutodialsDetailed[i])
 #abc456            
 def destributeToVariousLists(badAutodialsDetailed):
-    PossiblyInhousePrinterFlag = 1
+    """ This function does 2 things
+        1. It analyzes the individual autodial groups and sees if it's a dummy group,autodial,autofax, or inhouse printing..and it adds this info to the list.
+        2. It creates 2 others lists: 1 for sales and 1 for IT.  The sales list is destined to be used to be able to send out emails to sales team.
+    """
+    PossiblyInhousePrinterFlag = 1             #everything left over after dummy, autodial, autofax groups can possibly be inhouse printing.  This flag helps keep track of that.
     for i in range(0,len(badAutodialsDetailed)):
         if "dummy" in badAutodialsDetailed[i][bList1PortClassRow].lower():
             badAutodialsDetailed[i][bList1AGType] = "Dummy"
@@ -269,7 +276,7 @@ def destributeToVariousLists(badAutodialsDetailed):
             PossiblyInhousePrinterFlag = 0
 
         string1 = str(badAutodialsDetailed[i][bList1PortClassRow].lower())
-        matchObj = re.match(r'2,|3,|4,|7,|10,|11,|29,|30,|31,|69,|70,|71' ,string1,re.I)
+        matchObj = re.match(r'2,|3,|4,|7,|10,|11,|29,|30,|31,|69,|70,|71' ,string1,re.I)          #port class will begin with modem number followed by a comma or will have just one modem number
         matchObj2 = re.match(r'^2$|^3$|^4$|^7$|^10$|^11$|^29$|^30$|^31$|^69$|^70$|^71$' ,string1,re.I)
         if matchObj or matchObj2:
             badAutodialsDetailed[i][bList1AGType] = "Autodial"

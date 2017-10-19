@@ -1,0 +1,62 @@
+10/11/2017
+
+***************************************************&^
+CONNECTION RESPONSE
+CALL COMPLETED IS 10
+
+--WHERE MINI_LOG_DATE between TODAY-8 and TODAY-1
+
+NOT LIKE pattern
+
+make sure that autodial_group has an active client number at start
+make sure port class not this or that.
+
+has tried it every day for at least 5 of the last 7 days and no success
+I think we want this: where it has tried to report yesterday AND tried to report a week ago AND there has never been success.
+***************************************************&^
+
+AUTODIAL_PHONE_RECORD - 300723     Autodial Phone Record/Monitor File
+
+LOGICAL
+
+   Primary key: AUTODIAL_GROUP, CALL_DATE, CALL_TIME
+   Columns:
+
+      AUTODIAL_GROUP                    CHARACTER(10) NOT NULL
+            Autodial Group Number
+      AUTODIAL_GROUP_POINTER            AUTODIAL_GROUP_ID 
+            Foreign key (AUTODIAL_GROUP) to AUTODIAL_GROUP
+      BRUP_XREF_POINTER                 BRUP_XREF_ID 
+            Foreign key (RESPONSE) to BRUP_XREF
+      CALL_DATE                         DATE NOT NULL
+            Date call placed
+      CALL_TIME                         TIME NOT NULL
+            Time of day call placed
+      DATA_NODE_0                       CHARACTER(999) NOT NULL
+            ^RPH(AGNO,$H,$E($H,7,11))
+      OUTPUT_DEVICE                     CHARACTER(10) 
+            Output Device
+      PHONE_NUMBER                      CHARACTER(15) 
+            Autodial group phone record phone number
+      RESPONSE                          INTEGER(2) 
+            Telephone Response
+      TEXT                              CHARACTER(30) 
+            Text version of response
+            Virtual column:  brup_xref_pointer@text
+
+PHYSICAL
+                                                    Data Delimiter: 94
+Primary key 1: AUTODIAL_GROUP Average distinct: 4280.00 
+Primary key 2: CALL_DATE Average distinct: 21.14 
+Primary key 3: CALL_TIME Average distinct: 6.76 
+^[%UA,%VA]RPH(AUTODIAL_GROUP,CALL_DATE,CALL_TIME) = DATA_NODE_0
+          "^",1)                RESPONSE
+
+
+
+
+
+**********************************&^
+sending an email through python
+
+https://stackoverflow.com/questions/6270782/how-to-send-an-email-with-python

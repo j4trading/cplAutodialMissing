@@ -61,7 +61,8 @@ import mysql.connector
 
 # new changes in AutodialMissing5.py as of 10/19/17:
 #i ADDED to include the network node stuff...I th ink tit's pretty straightforward...but I haven't tested any consequences of it nor know what it looks like besides the file from kbase
-
+#To Do : I still need to test functionality of numberOfActiveClients in the badAutodialsDetailed thing
+# I get discrepancy with SANBAP...I need to fix the the it changes the phone nubmer on SANBAP after I do stuff like I'm not sure what...maybe after sorting in Excel or what not.  I thinkI need to change all phone nubmers to strings in python
 
 #index variable for overall list of lists
 mainListAutodialRow = 0   
@@ -90,17 +91,18 @@ badAutodialsDetailedToSales = []    # This is badAutodialsDetailed filtered and 
 
 bList1AGroupRow = 0
 bList1AGroupActiveRow = 1
-bList1ClientNumberRow = 2
-bList1ClientActiveRow = 3
-bList1RevCentRow = 4
-bList1TerritoryRow = 5
-bList1PortClassRow = 6
-bList1DeviceTypeRow = 7
-bList1PNumberRow = 8
-bList1ResponseRow = 9
-bList1AGType = 10
-bList1Comment = 11
-bList1NetworkNodeRow = 12
+bList1NumberOfActiveClients = 2
+bList1ClientNumberRow = 3
+bList1ClientActiveRow = 4
+bList1RevCentRow = 5
+bList1TerritoryRow = 6
+bList1PortClassRow = 7
+bList1DeviceTypeRow = 8
+bList1PNumberRow = 9
+bList1ResponseRow = 10
+bList1AGType = 11
+bList1Comment = 12
+bList1NetworkNodeRow = 13
 
 ADTableADGroupRow = 0
 ADTableADPhoneNumberRow = 1
@@ -160,7 +162,7 @@ def placeInBadDetailedList(badAutodialList):
             if autodialErrorTableList[j][ADTableADGroupRow] != badAutodialList[i][0]:
                 continue
             else:
-                tempList = [0,0,0,0,0,0,0,0,0,0,0,0,0]
+                tempList = [0,0,0,0,0,0,0,0,0,0,0,0,0,0]
                 badAutodialsDetailed.append(tempList)
                 badAutodialsDetailed[currentIndex][bList1AGroupRow] = autodialErrorTableList[j][ADTableADGroupRow]
                 badAutodialsDetailed[currentIndex][bList1AGroupRow] = autodialErrorTableList[j][ADTableADGroupRow]
@@ -173,7 +175,6 @@ def placeInBadDetailedList(badAutodialList):
                 badAutodialsDetailed[currentIndex][bList1DeviceTypeRow] = autodialErrorTableList[j][ADTableADReportRoutineRow]
                 badAutodialsDetailed[currentIndex][bList1PNumberRow] = autodialErrorTableList[j][ADTableADPhoneNumberRow]
                 badAutodialsDetailed[currentIndex][bList1NetworkNodeRow] = autodialErrorTableList[j][ADTableNetworkNodeRow]
-                ADTableNetworkNodeRow
                 
                 currentIndex = currentIndex + 1
                 
@@ -269,8 +270,47 @@ def findAutodialsWithNoClients(badAutodialsDetailed):
         if noClientIsActive == 1:
             badAutodialsDetailed[i][bList1Comment] = str(badAutodialsDetailed[i][bList1Comment]) + " bad Autodial with no clients;"
             badAutodialsDetailedToIT.append(badAutodialsDetailed[i])
+
+def countActiveClientsPerAutodial(badAutodialsDetailed):
+    """ This function goes through badAutodialsDetailed list and counts the number of active clients that exist for each autodial group"""
+    currentCount = 0
+    indexOfFirstOccurenceOfAutodial = 0
+    for i in range(0,len(badAutodialsDetailed)):
+        if len(badAutodialsDetailed) == 0:
+            break
+        if len(badAutodialsDetailed) == 1:
+            if badAutodialsDetailed[i][bList1ClientActiveRow].lower() == "yes":
+                badAutodialsDetailed[i][bList1NumberOfActiveClients] = 1
+            else:
+                badAutodialsDetailed[i][bList1NumberOfActiveClients] = 0
+            break
+
+        else:           #case where we have more than 1 in badAutodislDetailed list
+            if i != 0:
+                if badAutodialsDetailed[i][bList1AGroupRow] != badAutodialsDetailed[i-1][bList1AGroupRow]:
+                    for j in range(indexOfFirstOccurenceOfAutodial, i):
+                        badAutodialsDetailed[j][bList1NumberOfActiveClients] = currentCount
+                    currentCount = 0
+                    indexOfFirstOccurenceOfAutodial = i
+
+                if badAutodialsDetailed[i][bList1ClientActiveRow].lower() == "yes":
+                    currentCount += 1
+
+                #This if/else block is for the last autodial group in the last.
+                #This if else block was necessary because the other if/else blocks add the number of active clients at the element after the last element of the autodial group in question.
+                    #but in this case doing that would cause an exception error since we are at the end of the list.
+                if i == len(badAutodialsDetailed)-1:
+                    for j in range(indexOfFirstOccurenceOfAutodial, i+1):
+                        badAutodialsDetailed[j][bList1NumberOfActiveClients] = currentCount
+                    break
+            else:
+                indexOfFirstOccurenceOfAutodial = 0
+                currentCount = 0
+                if badAutodialsDetailed[i][bList1ClientActiveRow].lower() == "yes":
+                    currentCount += 1
+
 #abc456            
-def destributeToVariousLists(badAutodialsDetailed):
+def distributeToVariousLists(badAutodialsDetailed):
     """ This function does 2 things
         1. It analyzes the individual autodial groups and sees if it's a dummy group,autodial,autofax, or inhouse printing..and it adds this info to the list.
         2. It creates 2 others lists: 1 for sales and 1 for IT.  The sales list is destined to be used to be able to send out emails to sales team.
@@ -378,13 +418,19 @@ def sendEmail():
 ###listOfRows = sortTable(listOfRows)
 
 def testCode():
-    #bList1AGType
-    string1 = "afinds"
-    matchObj = re.match(r'^finds$|^afinds$' ,string1,re.I)
-    if matchObj:
-        print("mathces")
-    else:
-        print("nope")
+    readFromCSV('phone_record.csv',listOfRows)
+    removeFromTable(listOfRows)
+    storeAutodialTable()
+    mainProgPart()
+    placeInBadDetailedList(badAutodialList)
+    countActiveClientsPerAutodial(badAutodialsDetailed)
+    #distributeToVariousLists(badAutodialsDetailed)
+    writeTestListToCSV(autodialErrorTableList)
+    print(autodialErrorTableList[88969][1])
+    print(autodialErrorTableList[88970][1])
+    print(autodialErrorTableList[88971][1])
+    
+
     
 
 
@@ -399,13 +445,13 @@ yesterday = todayDate - datetime.timedelta(days=1)
 #################THis is the main program part ########################################
 #################THis is the main program part ########################################
 #run
-readFromCSV('phone_record.csv',listOfRows)
-removeFromTable(listOfRows)
-storeAutodialTable()
-mainProgPart()
-placeInBadDetailedList(badAutodialList)
-destributeToVariousLists(badAutodialsDetailed)
-writeTestListToCSV(badAutodialsDetailed)
+#readFromCSV('phone_record.csv',listOfRows)
+#removeFromTable(listOfRows)
+#storeAutodialTable()
+#mainProgPart()
+#placeInBadDetailedList(badAutodialList)
+#distributeToVariousLists(badAutodialsDetailed)
+#writeTestListToCSV(badAutodialsDetailed)
 ################################################################################
 ################################################################################
 ################################################################################
@@ -435,7 +481,8 @@ writeTestListToCSV(badAutodialsDetailed)
 ######writeTestListToCSV(badAutodialList)
 #sendEmail()
 print("start of program")
-
+#run
+testCode()
 print("end of program")
 
         

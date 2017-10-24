@@ -89,40 +89,56 @@ badAutodialsDetailedToIT = []   # This is badAutodialsDetailed filtered and is o
 
 badAutodialsDetailedToSales = []    # This is badAutodialsDetailed filtered and are autodials that account reps woudl need to be made aware of in order to fix.
 
-bList1AGroupRow = 0
-bList1AGroupActiveRow = 1
+bList1AGroupColumn = 0
+bList1AGroupInactiveColumn = 1
 bList1NumberOfActiveClients = 2
-bList1ClientNumberRow = 3
-bList1ClientActiveRow = 4
-bList1RevCentRow = 5
-bList1TerritoryRow = 6
-bList1PortClassRow = 7
-bList1DeviceTypeRow = 8
-bList1PNumberRow = 9
-bList1ResponseRow = 10
-bList1AGType = 11
-bList1Comment = 12
-bList1NetworkNodeRow = 13
+bList1ClientAcctNumberColumn = 3
+bList1ClientName = 4
+bList1ClientActiveColumn = 5
+bList1RevCentColumn = 6
+bList1TerritoryColumn = 7
+bList1PortClassColumn = 8
+bList1DeviceTypeColumn = 9
+bList1PNumberColumn = 10
+bList1ResponseColumn = 11
+bList1AGType = 12
+bList1Comment = 13
+bList1NetworkNodeColumn = 14
 
-ADTableADGroupRow = 0
-ADTableADPhoneNumberRow = 1
-ADTableIsADInactiveRow = 2
-ADTableRevCentRow = 3
-ADTableClientNumberRow = 4
-ADTableClientNameRow = 5
-ADTableTerritoryRow = 6
-ADTableSalesPersonRow = 7
-ADTableIsClientActiveRow = 8
-ADTableClientReportRoutineRow = 9
-ADTableAdditionalADGroupRow = 10
-ADTablePortClassRow = 11
-ADTablePorClass1Row = 12
-ADTablePortClass2Row = 13
-ADTablePortClass3Row = 14
-ADTableADReportRoutineRow = 15
-ADTableReportRoutineInhouseRow = 16
-ADTableNetworkNodeRow = 17
+ADTableADGroupColumn = 0
+ADTableADPhoneNumberColumn = 1
+ADTableIsADInactiveColumn = 2
+ADTableRevCentColumn = 3
+ADTableClientNumberColumn = 4
+ADTableClientNameColumn = 5
+ADTableTerritoryColumn = 6
+ADTableSalesPersonColumn = 7
+ADTableIsClientActiveColumn = 8
+ADTableClientReportRoutineColumn = 9
+ADTableAdditionalADGroupColumn = 10
+ADTablePortClassColumn = 11
+ADTablePorClass1Column = 12
+ADTablePortClass2Column = 13
+ADTablePortClass3Column = 14
+ADTableADReportRoutineColumn = 15
+ADTableReportRoutineInhouseColumn = 16
+ADTableNetworkNodeColumn = 17
 
+emailContactsList = []
+emailContactRevCentColumn = 0
+emailContactsManagerFirstNameColumn = 1
+emailContactsManagerLastNameColumn = 2
+emailContactsEmailAddressColumn = 3
+emailContactsMessage = 4
+
+emailContactsList = [
+                     ["DALLAS", "Dan", "Helminsky", "dhelminsky@cpllabs.com", ""],
+                     ["HOUSTON", "Jim", "Gebhart", "jgebhart@cpllabs.com", ""],
+                     ["AUSTIN", "Tony", "Jones", "tjones@cpllabs.com", ""],
+                     ["LASVEGAS", "John", "Evans", "jevans@cpllabs.com", ""],
+                     ["OKCITY", "Leah", "Nickell", "lnichell@cpllabs.com", ""],
+                     ["TULSA", "Leah", "Nickell", "lnichell@cpllabs.com", ""]
+                    ]
 
 badClientList = []
 # This is basically the badAutodialDetailed but accomodated for a sales reep
@@ -139,6 +155,70 @@ listForMe = []
 #todayDate = datetime.date.today()
 todayDate = datetime.datetime.strptime("10/11/2017","%m/%d/%Y").date()
 
+abc789
+def prepareSalesEmail ():
+    initialMessage = "These clients' autodials/autofax have not been reporting for at least the past 7 days.  \nPlease remember that if a client does not report then CPL does not get paid.\n  This is true whether or not the clientn is on Atlas or an EMR.\n"
+    emailMessageList = []
+    emailMessageDict = dict{"":"one","dos":"two"}
+    
+    sortedBadAutodialsList = sorted(badAutodialsDetailedToSales, key=itemgetter(bList1RevCentColumn, bList1TerritoryColumn, bList1AGroupColumn, bList1ClientAcctNumberColumn))
+    currentIndex = 0
+    message = initialMessage
+    # I need a provisoin for only 1 entry
+    # I need a provisoin for only 1 entry
+    # I need a provisoin for only 1 entry
+    # I need a provisoin for only 1 entry
+    # I need a provisoin for only 1 entry
+    # I need a provisoin for only 1 entry
+    # I need a provisoin for only 1 entry
+    #RUN WHOLE CODE BELOW ONCE YOU HAVE ADDED CODE FOR 1 ENTRY PROVISION
+    #last revenueCenterAlreadyProcessedFLag needs to keep ast revenue ceenter from being sent twice.
+
+    lastRevenueCenterAlreadyProcessedFlag = 0
+    while currentIndex < len(sortedBadAutodialsList):
+        #This section is done when ever Revenue Center changes
+        currentRevCent = sortedBadAutodialsList[currentIndex][bList1RevCentColumn]
+        message = message + "Revenue Center: " + currentRevCent + "\n"
+        while (currentIndex < len(sortedBadAutodialsList)) and sortedBadAutodialsList[currentIndex][bList1RevCentColumn] == currentRevCent:
+            #This section done when revenue center stays the same and territory changes
+            currentTerritory = sortedBadAutodialsList[currentIndex][bList1TerritoryColumn]
+            message = message + "Territory ID: " + currentTerritory + "\n"
+
+            #This section done when territory stays the same
+            while (currentIndex < len(sortedBadAutodialsList)) and sortedBadAutodialsList[currentIndex][bList1TerritoryColumn] == currentTerritory:
+    
+                #This section doen when autodial group changes
+                currentAutodial = sortedBadAutodialsList[currentIndex][bList1AGroupColumn]
+                message = message + "   Autodial/autofax group using autodial/autofax phone number: " + sortedBadAutodialsList[currentIndex][bList1PNumberColumn] +" is not reporting.\n"
+                message = message + "     It is used by the following clients:"
+                while (currentIndex < len(sortedBadAutodialsList)) and sortedBadAutodialsList[currentIndex][bList1AGroupColumn] == currentAutodial:
+                    #This section done when autoeiasl group stays the same
+                    message = message + "        Client: " + sortedBadAutodialsList[currentIndex][bList1ClientAcctNumberColumn] +" (" + sortedBadAutodialsList[currentIndex][bList1ClientName] +")"
+                    if len(sortedBadAutodialsList[currentIndex][bList1NetworkNodeColumn]) > 0:
+                        message += " NOTE: CLIENT IS ON ATLAS OR AN EMR"
+                    else:
+                        message += "NOTE: CLIENT DOES NOT HAVE ATLAS OR AN EMR"
+                    message += "\n"
+
+                    currentIndex += 1
+
+                message += "\n"  #End of current Autodial
+            message += "\n"  #End of current Territory
+        message += "\n" #End of current Revenue cetner
+                
+        #This section is done at the end of a given Revenue Center within the outer most loop
+        emailRevCentFoundFlag = 0
+        for emailIndex in range(0,len(emailContactsList)):
+            if emailContactsList[emailIndex][emailContactRevCentColumn] == currentRevCent:
+                emailContactsList[emailIndex][emailContactsMessage] = message
+                emailRevCentFoundFlag = 1
+                break
+        if emailRevCentFoundFlag = 0:
+            writeToLog("\n " + todayDate.strftime('%Y/%m/%d') + " Revenue Center was not found in email Contacts List...so no email sent to regional manager....message was: " + message + "\n")
+                    abc333
+abc111
+        
+
 def storeAutodialTable():
     with open('autodialmissingref.csv','r') as f:
         csv_f = csv.reader(f)
@@ -153,33 +233,32 @@ def placeInBadDetailedList(badAutodialList):
 
             #printdebug
             if i == 0 and j == 5:
-               writeToLog(autodialErrorTableList[j][ADTableADGroupRow])
+               writeToLog(autodialErrorTableList[j][ADTableADGroupColumn])
                print("length: ",len(autodialErrorTableList))
-               print("index: ",autodialErrorTableList[j][ADTableADGroupRow])
+               print("index: ",autodialErrorTableList[j][ADTableADGroupColumn])
                print("j: ",j)
-               print("ADTableADGroupRow: ",ADTableADGroupRow)
+               print("ADTableADGroupColumn: ",ADTableADGroupColumn)
 
-            if autodialErrorTableList[j][ADTableADGroupRow] != badAutodialList[i][0]:
+            if autodialErrorTableList[j][ADTableADGroupColumn] != badAutodialList[i][0]:
                 continue
             else:
-                tempList = [0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+                tempList = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
                 badAutodialsDetailed.append(tempList)
-                badAutodialsDetailed[currentIndex][bList1AGroupRow] = autodialErrorTableList[j][ADTableADGroupRow]
-                badAutodialsDetailed[currentIndex][bList1AGroupRow] = autodialErrorTableList[j][ADTableADGroupRow]
-                badAutodialsDetailed[currentIndex][bList1AGroupActiveRow] = autodialErrorTableList[j][ADTableIsADInactiveRow]
-                badAutodialsDetailed[currentIndex][bList1ClientNumberRow] = autodialErrorTableList[j][ADTableClientNumberRow]
-                badAutodialsDetailed[currentIndex][bList1ClientActiveRow] = autodialErrorTableList[j][ADTableIsClientActiveRow]
-                badAutodialsDetailed[currentIndex][bList1RevCentRow] = autodialErrorTableList[j][ADTableRevCentRow]
-                badAutodialsDetailed[currentIndex][bList1TerritoryRow] = autodialErrorTableList[j][ADTableTerritoryRow]
-                badAutodialsDetailed[currentIndex][bList1PortClassRow] = autodialErrorTableList[j][ADTablePortClassRow]
-                badAutodialsDetailed[currentIndex][bList1DeviceTypeRow] = autodialErrorTableList[j][ADTableADReportRoutineRow]
-                badAutodialsDetailed[currentIndex][bList1PNumberRow] = autodialErrorTableList[j][ADTableADPhoneNumberRow]
-                badAutodialsDetailed[currentIndex][bList1NetworkNodeRow] = autodialErrorTableList[j][ADTableNetworkNodeRow]
+                badAutodialsDetailed[currentIndex][bList1AGroupColumn] = autodialErrorTableList[j][ADTableADGroupColumn]
+                badAutodialsDetailed[currentIndex][bList1AGroupInactiveColumn] = autodialErrorTableList[j][ADTableIsADInactiveColumn]
+                badAutodialsDetailed[currentIndex][bList1ClientAcctNumberColumn] = autodialErrorTableList[j][ADTableClientNumberColumn]
+                badAutodialsDetailed[currentIndex][bList1ClientName] = autodialErrorTableList[j][ADTableClientNameColumn]
+                badAutodialsDetailed[currentIndex][bList1ClientActiveColumn] = autodialErrorTableList[j][ADTableIsClientActiveColumn]
+                badAutodialsDetailed[currentIndex][bList1RevCentColumn] = autodialErrorTableList[j][ADTableRevCentColumn]
+                badAutodialsDetailed[currentIndex][bList1TerritoryColumn] = autodialErrorTableList[j][ADTableTerritoryColumn]
+                badAutodialsDetailed[currentIndex][bList1PortClassColumn] = autodialErrorTableList[j][ADTablePortClassColumn]
+                badAutodialsDetailed[currentIndex][bList1PNumberColumn] = autodialErrorTableList[j][ADTableADPhoneNumberColumn]
+                badAutodialsDetailed[currentIndex][bList1NetworkNodeColumn] = autodialErrorTableList[j][ADTableNetworkNodeColumn]
                 
                 currentIndex = currentIndex + 1
                 
 def writeToLog(stringHere):
-    file = open("LogIt.txt","w")
+    file = open("LogIt.txt","a")
     file.write(stringHere)
     file.close()
 
@@ -207,7 +286,7 @@ def removeFromTable(listOfRows):
     return somethingDeletedFlag
         
         
-
+#this function appears to not be used by anoyone... 10/21/17
 def checkDayForSuccess(dayList):
     """ Takes a list that holds a whole day's worth of phone records
         It outputs 0 if there was no success throughout that entire day"""
@@ -258,14 +337,14 @@ def findAutodialsWithNoClients(badAutodialsDetailed):
     for i in range(1,len(badAutodialsDetailed)):
         if len(badAutodialsDetailed) <= 1:         #This is to guard against run-time errors since we will be comparing with the previous element in list.
             break
-        if badAutodialsDetailed[i][bList1AGroupRow] != badAutodialsDetailed[i -1][bList1AGroupRow]:
+        if badAutodialsDetailed[i][bList1AGroupColumn] != badAutodialsDetailed[i -1][bList1AGroupColumn]:
             noClientIsActive = 1
-            if badAutodialsDetailed[i][bList1ClientActiveRow] == "YES":
+            if badAutodialsDetailed[i][bList1ClientActiveColumn] == "YES":
                 noClientIsActive = 0
                 print("in here")
-        if badAutodialsDetailed[i][bList1AGroupRow] == badAutodialsDetailed[i -1][bList1AGroupRow]:
+        if badAutodialsDetailed[i][bList1AGroupColumn] == badAutodialsDetailed[i -1][bList1AGroupColumn]:
             if noClientIsActive != 0:
-                if badAutodialsDetailed[i][bList1ClientActiveRow] == "YES":
+                if badAutodialsDetailed[i][bList1ClientActiveColumn] == "YES":
                     noClientIsActive = 0
         if noClientIsActive == 1:
             badAutodialsDetailed[i][bList1Comment] = str(badAutodialsDetailed[i][bList1Comment]) + " bad Autodial with no clients;"
@@ -279,7 +358,7 @@ def countActiveClientsPerAutodial(badAutodialsDetailed):
         if len(badAutodialsDetailed) == 0:
             break
         if len(badAutodialsDetailed) == 1:
-            if badAutodialsDetailed[i][bList1ClientActiveRow].lower() == "yes":
+            if badAutodialsDetailed[i][bList1ClientActiveColumn].lower() == "yes":
                 badAutodialsDetailed[i][bList1NumberOfActiveClients] = 1
             else:
                 badAutodialsDetailed[i][bList1NumberOfActiveClients] = 0
@@ -287,13 +366,13 @@ def countActiveClientsPerAutodial(badAutodialsDetailed):
 
         else:           #case where we have more than 1 in badAutodislDetailed list
             if i != 0:
-                if badAutodialsDetailed[i][bList1AGroupRow] != badAutodialsDetailed[i-1][bList1AGroupRow]:
+                if badAutodialsDetailed[i][bList1AGroupColumn] != badAutodialsDetailed[i-1][bList1AGroupColumn]:
                     for j in range(indexOfFirstOccurenceOfAutodial, i):
                         badAutodialsDetailed[j][bList1NumberOfActiveClients] = currentCount
                     currentCount = 0
                     indexOfFirstOccurenceOfAutodial = i
 
-                if badAutodialsDetailed[i][bList1ClientActiveRow].lower() == "yes":
+                if badAutodialsDetailed[i][bList1ClientActiveColumn].lower() == "yes":
                     currentCount += 1
 
                 #This if/else block is for the last autodial group in the last.
@@ -306,8 +385,11 @@ def countActiveClientsPerAutodial(badAutodialsDetailed):
             else:
                 indexOfFirstOccurenceOfAutodial = 0
                 currentCount = 0
-                if badAutodialsDetailed[i][bList1ClientActiveRow].lower() == "yes":
+                if badAutodialsDetailed[i][bList1ClientActiveColumn].lower() == "yes":
                     currentCount += 1
+
+emailToSalesList = []
+
 
 #abc456            
 def distributeToVariousLists(badAutodialsDetailed):
@@ -317,13 +399,13 @@ def distributeToVariousLists(badAutodialsDetailed):
     """
     PossiblyInhousePrinterFlag = 1             #everything left over after dummy, autodial, autofax groups can possibly be inhouse printing.  This flag helps keep track of that.
     for i in range(0,len(badAutodialsDetailed)):
-        if "dummy" in badAutodialsDetailed[i][bList1PortClassRow].lower():
+        if "dummy" in badAutodialsDetailed[i][bList1PortClassColumn].lower():
             badAutodialsDetailed[i][bList1AGType] = "Dummy"
             badAutodialsDetailed[i][bList1Comment] = " bad dummy group; "
             badAutodialsDetailedToIT.append(badAutodialsDetailed[i])
             PossiblyInhousePrinterFlag = 0
 
-        string1 = str(badAutodialsDetailed[i][bList1PortClassRow].lower())
+        string1 = str(badAutodialsDetailed[i][bList1PortClassColumn].lower())
         matchObj = re.match(r'2,|3,|4,|7,|10,|11,|29,|30,|31,|69,|70,|71' ,string1,re.I)          #port class will begin with modem number followed by a comma or will have just one modem number
         matchObj2 = re.match(r'^2$|^3$|^4$|^7$|^10$|^11$|^29$|^30$|^31$|^69$|^70$|^71$' ,string1,re.I)
         if matchObj or matchObj2:
@@ -332,7 +414,7 @@ def distributeToVariousLists(badAutodialsDetailed):
             badAutodialsDetailedToIT.append(badAutodialsDetailed[i])
             PossiblyInhousePrinterFlag = 0
 
-        if "t4fax" in badAutodialsDetailed[i][bList1PortClassRow].lower() or "t4faxdrl" in badAutodialsDetailed[i][bList1PortClassRow].lower():
+        if "t4fax" in badAutodialsDetailed[i][bList1PortClassColumn].lower() or "t4faxdrl" in badAutodialsDetailed[i][bList1PortClassColumn].lower():
             badAutodialsDetailed[i][bList1AGType] = "Autofax"
             badAutodialsDetailed[i][bList1Comment] = " bad autofax group; "
             badAutodialsDetailedToSales.append(badAutodialsDetailed[i])        
@@ -418,19 +500,9 @@ def sendEmail():
 ###listOfRows = sortTable(listOfRows)
 
 def testCode():
-    readFromCSV('phone_record.csv',listOfRows)
-    removeFromTable(listOfRows)
-    storeAutodialTable()
-    mainProgPart()
-    placeInBadDetailedList(badAutodialList)
-    countActiveClientsPerAutodial(badAutodialsDetailed)
-    #distributeToVariousLists(badAutodialsDetailed)
-    writeTestListToCSV(autodialErrorTableList)
-    print(autodialErrorTableList[88969][1])
-    print(autodialErrorTableList[88970][1])
-    print(autodialErrorTableList[88971][1])
-    
-
+    l= [[8,3,2],[4,4,7],[5,3,2]]
+    sortedl = sorted(l,key=itemgetter(2,1,0))
+    print(sortedl)
     
 
 
